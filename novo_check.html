@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoopi Tecnologia - Helpdesk</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #0078d4;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%; /* Garante que o campo ocupe a largura total */
+            box-sizing: border-box; /* Inclui padding e borda na largura */
+        }
+        button {
+            padding: 10px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .popup button {
+            margin-top: 10px;
+        }
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .video-container iframe {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+        }
+        .urgente {
+            background-color: red;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .urgente:hover {
+            background-color: darkred;
+        }
+        .urgente-info {
+            font-size: 12px;
+            color: white; /* Fonte branca */
+            margin-top: 5px;
+            text-transform: uppercase; /* Texto em maiúsculo */
+            font-weight: bold; /* Negrito */
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #0078d4;
+            color: white;
+            margin-top: 20px;
+        }
+        .social-icons {
+            margin-top: 10px;
+        }
+        .social-icons a {
+            margin: 0 10px;
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Zoopi Tecnologia - Helpdesk</h1>
+        <p>Atendimento de segunda a sexta, das 9h às 21h</p>
+        <button class="urgente" onclick="openUrgentePopup()">Urgente</button>
+        <p class="urgente-info">Somente se seu sistema estiver parado. Não clique por outro motivo.</p>
+    </header>
+
+    <div class="container">
+        <form id="helpdeskForm">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" name="telefone" required>
+
+            <label for="empresa">Empresa:</label>
+            <input type="text" id="empresa" name="empresa" required>
+
+            <label for="setor">Setor:</label>
+            <select id="setor" name="setor" required>
+                <option value="">Selecione...</option>
+                <option value="suporte">Suporte</option>
+                <option value="financeiro">Financeiro</option>
+                <option value="comercial">Comercial</option>
+            </select>
+
+            <!-- Opções de Suporte -->
+            <div id="suporteOptions" style="display: none;">
+                <label for="suporteTipo">Tipo de Suporte:</label>
+                <select id="suporteTipo" name="suporteTipo">
+                    <option value="">Selecione...</option>
+                    <option value="retaguarda">Retaguarda</option>
+                    <option value="venda">Venda</option>
+                    <option value="delivery">Delivery</option>
+                    <option value="fiscal">Fiscal</option>
+                    <option value="cadastro_produto">Cadastro de Produto</option>
+                    <option value="impressora">Problemas em Impressora</option>
+                    <option value="rede">Problemas em Rede</option>
+                    <option value="conexao">Problemas em Conexão</option>
+                    <option value="windows">Problemas em Windows</option>
+                    <option value="visita_tecnica">Visita Técnica</option>
+                    <option value="treinamento">Treinamento</option>
+                </select>
+
+                <!-- Campo para descrever o problema -->
+                <div id="descricaoProblema" style="display: none;">
+                    <label for="problema">Descreva o problema:</label>
+                    <textarea id="problema" name="problema" rows="4" placeholder="Descreva detalhadamente o problema..." style="width: 100%;"></textarea>
+                </div>
+
+                <!-- Pop-ups de Suporte -->
+                <div id="cadastroProdutoPopup" class="popup">
+                    <p><strong>Atenção:</strong> A Zoopi Tecnologia não realiza cadastro de produtos. Essa função cabe ao estabelecimento. Enviamos tutorial, mas não interferimos em quadros, alterações e manipulação de cartão. Podemos até fazer mais mediante orçamento.</p>
+                    <button onclick="closePopup('cadastroProdutoPopup')">Fechar</button>
+                </div>
+
+                <div id="hardwarePopup" class="popup">
+                    <p><strong>Atenção:</strong> A Zoopi Tecnologia não é responsável pelo hardware. Pedimos que entre em contato com um técnico de sua confiança e solicite uma visita para resolver seu problema.</p>
+                    <button onclick="closePopup('hardwarePopup')">Fechar</button>
+                </div>
+
+                <div id="treinamentoPopup" class="popup">
+                    <p><strong>Informações sobre Treinamento:</strong></p>
+                    <p>O treinamento é focado no módulo de retaguarda, salvo exceções se já foi passado para alguém da equipe. Caso seja um retreinamento, será cobrado.</p>
+                    <p>O treinamento do módulo de vendas foi passado na implantação. Esse módulo tem cobrança à parte, ou você pode assistir aos nossos tutoriais disponíveis.</p>
+                    <button onclick="closePopup('treinamentoPopup')">Fechar</button>
+                </div>
+
+                <!-- Opções de Fiscal -->
+                <div id="fiscalOptions" style="display: none;">
+                    <label for="tipoFiscal">Tipo de Documento Fiscal:</label>
+                    <select id="tipoFiscal" name="tipoFiscal">
+                        <option value="">Selecione...</option>
+                        <option value="nfe">NFe</option>
+                        <option value="nfce">NFC-e</option>
+                    </select>
+                </div>
+
+                <!-- Visita Técnica -->
+                <div id="visitaTecnicaOptions" style="display: none;">
+                    <label for="cidade">Cidade:</label>
+                    <select id="cidade" name="cidade">
+                        <option value="">Selecione...</option>
+                        <option value="Ribeirão Preto">Ribeirão Preto (R$ 60,00)</option>
+                        <option value="Sertãozinho">Sertãozinho (R$ 99,00)</option>
+                        <option value="Barrinha">Barrinha (R$ 140,00)</option>
+                        <option value="Itápolis">Itápolis (R$ 260,00)</option>
+                        <option value="Tauqaritinga">Tauqaritinga (R$ 190,00)</option>
+                        <option value="Jaboticabal">Jaboticabal (R$ 160,00)</option>
+                        <option value="José Bonifácio">José Bonifácio (R$ 550,00)</option>
+                        <option value="Cravinhos">Cravinhos (R$ 80,00)</option>
+                        <option value="Santa Rosa Viterbo">Santa Rosa Viterbo (R$ 180,00)</option>
+                        <option value="São Simão">São Simão (R$ 160,00)</option>
+                        <option value="Araraquara">Araraquara (R$ 240,00)</option>
+                        <option value="São Carlos">São Carlos (R$ 250,00)</option>
+                        <option value="Batatais">Batatais (R$ 140,00)</option>
+                        <option value="Brodowski">Brodowski (R$ 110,00)</option>
+                        <option value="São Joaquim da Barra">São Joaquim da Barra (R$ 150,00)</option>
+                        <option value="Serrana">Serrana (R$ 70,00)</option>
+                        <option value="Cajuru">Cajuru (R$ 180,00)</option>
+                        <option value="São Paulo">São Paulo (R$ 890,00)</option>
+                        <option value="Campinas">Campinas (R$ 650,00)</option>
+                        <option value="Outra">Outra</option>
+                    </select>
+
+                    <div id="outraCidade" style="display: none;">
+                        <label for="distancia">Distância entre Ribeirão Preto e sua cidade (km):</label>
+                        <input type="number" id="distancia" name="distancia">
+                    </div>
+
+                    <label for="agendamento">Agendamento:</label>
+                    <input type="datetime-local" id="agendamento" name="agendamento" min="2023-10-02T09:00" max="2023-10-06T16:00">
+
+                    <p><strong>Horário de Atendimento:</strong> Segunda a sexta, das 9h às 16h (exceto feriados).</p>
+                    <p><strong>Taxa de Visita Técnica:</strong> R$ 120,00 por hora + taxa de deslocamento.</p>
+                </div>
+
+                <!-- Treinamento -->
+                <div id="treinamentoOptions" style="display: none;">
+                    <label for="treinamentoData">Data do Treinamento:</label>
+                    <input type="date" id="treinamentoData" name="treinamentoData" min="2023-10-02" max="2023-10-06">
+                    <label for="treinamentoHorario">Horário:</label>
+                    <select id="treinamentoHorario" name="treinamentoHorario">
+                        <option value="09:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                    </select>
+                    <p><strong>Duração:</strong> 1 hora</p>
+                </div>
+            </div>
+
+            <!-- Opções de Financeiro -->
+            <div id="financeiroOptions" style="display: none;">
+                <label for="motivo">Motivo:</label>
+                <select id="motivo" name="motivo">
+                    <option value="">Selecione...</option>
+                    <option value="segunda_via">Segunda Via</option>
+                    <option value="liberacao_sistema">Liberação de Sistema</option>
+                    <option value="falar_responsavel">Falar com Responsável</option>
+                </select>
+
+                <!-- Pop-up de Liberação de Sistema -->
+                <div id="liberacaoSistemaPopup" class="popup">
+                    <p><strong>Informações sobre Liberação de Sistema:</strong></p>
+                    <p>Para liberação de sistema, é necessário enviar seu comprovante de pagamento.</p>
+                    <p>Este processo é realizado em nosso horário comercial, das 9h às 17h.</p>
+                    <p>Caso o envio seja após as 17h, infelizmente não temos como fazer a liberação fora do horário.</p>
+                    <p>Os boletos são enviados para seu e-mail e WhatsApp com até 25 dias de antecedência.</p>
+                    <label for="comprovante">Anexar Comprovante:</label>
+                    <input type="file" id="comprovante" name="comprovante">
+                    <button onclick="closePopup('liberacaoSistemaPopup')">Fechar</button>
+                </div>
+            </div>
+
+            <!-- Opções de Comercial -->
+            <div id="comercialOptions" style="display: none;">
+                <p>Conheça nossas soluções: <a href="https://zoopi.app.br" target="_blank">https://zoopi.app.br</a></p>
+                <label for="assunto">Como podemos ajudar?</label>
+                <select id="assunto" name="assunto">
+                    <option value="">Selecione...</option>
+                    <option value="sistema">Sobre o Sistema</option>
+                    <option value="modulos">Adicionar Módulos</option>
+                    <option value="apresentacao">Agendar Apresentação Online</option>
+                    <option value="outros">Outros Assuntos</option>
+                </select>
+
+                <!-- Agendamento de Apresentação -->
+                <div id="apresentacaoOptions" style="display: none;">
+                    <label for="apresentacaoData">Data da Apresentação:</label>
+                    <input type="date" id="apresentacaoData" name="apresentacaoData" min="2023-10-03">
+                    <label for="apresentacaoHorario">Horário:</label>
+                    <select id="apresentacaoHorario" name="apresentacaoHorario">
+                        <option value="09:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                    </select>
+                    <p><strong>Obs:</strong> Iremos confirmar se temos agenda para a data e horário selecionados.</p>
+                </div>
+            </div>
+
+            <button type="submit">Enviar Solicitação</button>
+        </form>
+
+        <!-- Vídeos de Treinamento -->
+        <div class="video-container">
+            <iframe src="https://www.youtube.com/embed/VIDEO_ID_1" frameborder="0" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/VIDEO_ID_2" frameborder="0" allowfullscreen></iframe>
+            <!-- Adicione mais iframes conforme necessário -->
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>Central de Atendimento ao Cliente</p>
+        <p>Visite nosso site: <a href="https://zoopi.app.br" target="_blank">https://zoopi.app.br</a></p>
+        <div class="social-icons">
+            <a href="#">Facebook</a>
+            <a href="#">Instagram</a>
+            <a href="#">LinkedIn</a>
+        </div>
+    </footer>
+
+    <!-- Pop-up Urgente -->
+    <div id="urgentePopup" class="popup">
+        <p><strong>Urgente:</strong> Sistema parado. Preencha os dados abaixo para enviar uma solicitação urgente.</p>
+        <label for="urgenteNome">Nome:</label>
+        <input type="text" id="urgenteNome" name="urgenteNome" required>
+        <label for="urgenteEmpresa">Empresa:</label>
+        <input type="text" id="urgenteEmpresa" name="urgenteEmpresa" required>
+        <button onclick="enviarUrgente()">Enviar</button>
+        <button onclick="closePopup('urgentePopup')">Fechar</button>
+    </div>
+
+    <script>
+        // Exibir opções de setor
+        document.getElementById('setor').addEventListener('change', function() {
+            var suporteOptions = document.getElementById('suporteOptions');
+            var financeiroOptions = document.getElementById('financeiroOptions');
+            var comercialOptions = document.getElementById('comercialOptions');
+
+            suporteOptions.style.display = this.value === 'suporte' ? 'block' : 'none';
+            financeiroOptions.style.display = this.value === 'financeiro' ? 'block' : 'none';
+            comercialOptions.style.display = this.value === 'comercial' ? 'block' : 'none';
+        });
+
+        // Exibir opções de suporte e campo de descrição do problema
+        document.getElementById('suporteTipo').addEventListener('change', function() {
+            var descricaoProblema = document.getElementById('descricaoProblema');
+            var cadastroProdutoPopup = document.getElementById('cadastroProdutoPopup');
+            var hardwarePopup = document.getElementById('hardwarePopup');
+            var treinamentoPopup = document.getElementById('treinamentoPopup');
+            var fiscalOptions = document.getElementById('fiscalOptions');
+            var visitaTecnicaOptions = document.getElementById('visitaTecnicaOptions');
+            var treinamentoOptions = document.getElementById('treinamentoOptions');
+
+            // Exibir campo de descrição do problema
+            descricaoProblema.style.display = this.value ? 'block' : 'none';
+
+            if (this.value === 'cadastro_produto') {
+                cadastroProdutoPopup.style.display = 'block';
+            } else if (this.value === 'impressora' || this.value === 'rede' || this.value === 'conexao' || this.value === 'windows') {
+                hardwarePopup.style.display = 'block';
+            } else if (this.value === 'treinamento') {
+                treinamentoPopup.style.display = 'block';
+            } else if (this.value === 'fiscal') {
+                fiscalOptions.style.display = 'block';
+            } else {
+                cadastroProdutoPopup.style.display = 'none';
+                hardwarePopup.style.display = 'none';
+                treinamentoPopup.style.display = 'none';
+                fiscalOptions.style.display = 'none';
+            }
+
+            visitaTecnicaOptions.style.display = this.value === 'visita_tecnica' ? 'block' : 'none';
+            treinamentoOptions.style.display = this.value === 'treinamento' ? 'block' : 'none';
+        });
+
+        // Exibir campo de distância para cidades não listadas
+        document.getElementById('cidade').addEventListener('change', function() {
+            var outraCidade = document.getElementById('outraCidade');
+            outraCidade.style.display = this.value === 'Outra' ? 'block' : 'none';
+        });
+
+        // Exibir opções de agendamento para apresentação comercial
+        document.getElementById('assunto').addEventListener('change', function() {
+            var apresentacaoOptions = document.getElementById('apresentacaoOptions');
+            apresentacaoOptions.style.display = this.value === 'apresentacao' ? 'block' : 'none';
+        });
+
+        // Exibir pop-up de liberação de sistema no financeiro
+        document.getElementById('motivo').addEventListener('change', function() {
+            var liberacaoSistemaPopup = document.getElementById('liberacaoSistemaPopup');
+            liberacaoSistemaPopup.style.display = this.value === 'liberacao_sistema' ? 'block' : 'none';
+        });
+
+        // Fechar pop-ups
+        function closePopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+        }
+
+        // Abrir pop-up urgente
+        function openUrgentePopup() {
+            document.getElementById('urgentePopup').style.display = 'block';
+        }
+
+        // Enviar mensagem urgente
+        function enviarUrgente() {
+            var nome = document.getElementById('urgenteNome').value;
+            var empresa = document.getElementById('urgenteEmpresa').value;
+            var message = `Urgente: Sistema parado\nNome: ${nome}\nEmpresa: ${empresa}`;
+
+            var numbers = [
+                '5516993443467',
+                '5516982586199',
+                '5516997356207',
+                '5516991775336',
+                '5516991767707',
+                '5516981732367'
+            ];
+
+            numbers.forEach(number => {
+                window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank');
+            });
+
+            closePopup('urgentePopup');
+        }
+
+        // Enviar formulário principal
+        document.getElementById('helpdeskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var setor = document.getElementById('setor').value;
+            var suporteTipo = document.getElementById('suporteTipo').value;
+            var cidade = document.getElementById('cidade').value;
+            var distancia = document.getElementById('distancia').value;
+            var agendamento = document.getElementById('agendamento').value;
+            var motivo = document.getElementById('motivo').value;
+            var assunto = document.getElementById('assunto').value;
+            var problema = document.getElementById('problema').value;
+
+            var whatsappNumber;
+            var message = `Nome: ${document.getElementById('nome').value}\nTelefone: ${document.getElementById('telefone').value}\nEmpresa: ${document.getElementById('empresa').value}\nSetor: ${setor}\n`;
+
+            if (setor === 'suporte') {
+                message += `Tipo de Suporte: ${suporteTipo}\n`;
+                if (problema) {
+                    message += `Problema: ${problema}\n`;
+                }
+                if (suporteTipo === 'visita_tecnica') {
+                    message += `Cidade: ${cidade}\nDistância: ${distancia} km\nAgendamento: ${agendamento}\n`;
+                }
+                whatsappNumber = '5516993443467';
+            } else if (setor === 'financeiro') {
+                message += `Motivo: ${motivo}\n`;
+                whatsappNumber = '5516996998402';
+            } else if (setor === 'comercial') {
+                message += `Assunto: ${assunto}\n`;
+                whatsappNumber = '5516982586199';
+            }
+
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+        });
+    </script>
+
+</body>
+</html>
